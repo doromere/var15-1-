@@ -1,0 +1,133 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:Catering.Desktop.Converters"
+             x:Class="Catering.Desktop.App"
+             RequestedThemeVariant="Light">
+
+  <Application.Resources>
+    <converters:StatusToBrushConverter x:Key="StatusToBrushConverter" />
+    <converters:StatusToForegroundConverter x:Key="StatusToForegroundConverter" />
+    <converters:BoolToBrushConverter x:Key="BoolToBrushConverter" />
+    <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
+    <converters:NotZeroToBoolConverter x:Key="NotZeroToBoolConverter" />
+    <converters:IsZeroConverter x:Key="IsZeroConverter" />
+    <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+    <converters:OverdueTextConverter x:Key="OverdueTextConverter" />
+    <converters:OverdueBrushConverter x:Key="OverdueBrushConverter" />
+    <converters:SelectedNotNullConverter x:Key="SelectedNotNullConverter" />
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+
+    <!-- Палитра «кейтеринг»: бумага, глубокий зелёный, терракота, золото. Без градиентов. -->
+    <Style Selector="Window">
+      <Setter Property="Background" Value="#F7F3EB" />
+      <Setter Property="Foreground" Value="#2A2118" />
+      <Setter Property="FontFamily" Value="Segoe UI, Inter, sans-serif" />
+      <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style Selector="TextBlock.H1">
+      <Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+      <Setter Property="FontSize" Value="26" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#213B2C" />
+    </Style>
+
+    <Style Selector="TextBlock.H2">
+      <Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+      <Setter Property="FontSize" Value="16" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#213B2C" />
+    </Style>
+
+    <Style Selector="TextBlock.Caption">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Foreground" Value="#6B5E4E" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.Error">
+      <Setter Property="Foreground" Value="#8C2F2F" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style Selector="Button">
+      <Setter Property="Padding" Value="14,8" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="#EDE6D8" />
+      <Setter Property="Foreground" Value="#2A2118" />
+      <Setter Property="BorderBrush" Value="#C9BFA9" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.Accent">
+      <Setter Property="Background" Value="#B4552D" />
+      <Setter Property="BorderBrush" Value="#8F3F1F" />
+      <Setter Property="Foreground" Value="#FFFDF7" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+
+    <Style Selector="Button.Dark">
+      <Setter Property="Background" Value="#213B2C" />
+      <Setter Property="BorderBrush" Value="#14251B" />
+      <Setter Property="Foreground" Value="#F7F3EB" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="Button.Subtle">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="#C9BFA9" />
+      <Setter Property="Foreground" Value="#213B2C" />
+    </Style>
+
+    <Style Selector="Button:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <Style Selector="TextBox">
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Background" Value="#FFFDF7" />
+      <Setter Property="BorderBrush" Value="#C9BFA9" />
+    </Style>
+
+    <Style Selector="ComboBox">
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="CornerRadius" Value="4" />
+    </Style>
+
+    <Style Selector="DataGrid">
+      <Setter Property="Background" Value="#FFFDF7" />
+      <Setter Property="BorderBrush" Value="#C9BFA9" />
+      <Setter Property="GridLinesVisibility" Value="Horizontal" />
+      <Setter Property="RowBackground" Value="#FFFDF7" />
+      <Setter Property="Foreground" Value="#2A2118" />
+    </Style>
+
+    <Style Selector="DataGridColumnHeader">
+      <Setter Property="Background" Value="#213B2C" />
+      <Setter Property="Foreground" Value="#F7F3EB" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="8,6" />
+    </Style>
+
+    <Style Selector="Border.Card">
+      <Setter Property="Background" Value="#FFFDF7" />
+      <Setter Property="BorderBrush" Value="#E0D5BE" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <Style Selector="Border.StatusChip">
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Padding" Value="10,2" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+  </Application.Styles>
+</Application>

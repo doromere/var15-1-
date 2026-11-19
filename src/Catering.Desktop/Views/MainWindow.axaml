@@ -1,0 +1,185 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Catering.Desktop.ViewModels"
+        xmlns:models="using:Catering.Core.Models"
+        x:Class="Catering.Desktop.Views.MainWindow"
+        Title="Кейтеринг «Сибирский стол» · Панель координатора"
+        Width="1290" Height="820"
+        MinWidth="1100" MinHeight="680"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid ColumnDefinitions="290,*">
+
+    <!-- Боковая панель: сотрудник и статус системы -->
+    <Border Grid.Column="0" Background="#213B2C" Padding="26,24">
+      <Grid RowDefinitions="Auto,*,Auto">
+        <StackPanel Grid.Row="0" Spacing="2">
+          <TextBlock Text="ПР23 · КТР" FontSize="10" FontWeight="SemiBold" Foreground="#C9A227" />
+          <TextBlock Text="СИБИРСКИЙ СТОЛ" FontFamily="Georgia, 'Times New Roman', serif"
+                     FontSize="22" FontWeight="Bold" Foreground="#F7F3EB" />
+          <TextBlock Text="выездное ресторанное обслуживание" FontSize="11" Foreground="#8FA797" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="14">
+          <Border BorderBrush="#3F5A49" BorderThickness="0,1,0,0" Padding="0,14,0,0" />
+          <TextBlock Text="ВЫПОЛНЯЕТ" FontSize="10" FontWeight="SemiBold" Foreground="#C9A227" />
+          <TextBlock Text="{Binding UserDisplayName}" TextWrapping="Wrap"
+                     FontFamily="Georgia, 'Times New Roman', serif" FontSize="20" FontWeight="Bold"
+                     Foreground="#F7F3EB" LineHeight="26" />
+          <Border Background="#2E4A38" BorderBrush="#3F5A49" BorderThickness="1" CornerRadius="12"
+                  Padding="12,5" HorizontalAlignment="Left">
+            <TextBlock Text="{Binding UserRoleName}" Foreground="#D8E4DA" FontSize="12" FontWeight="SemiBold" />
+          </Border>
+
+          <Border BorderBrush="#3F5A49" BorderThickness="0,1,0,0" Padding="0,14,0,0" />
+          <TextBlock Text="СЕЙЧАС" FontSize="10" FontWeight="SemiBold" Foreground="#C9A227" />
+          <TextBlock Text="{Binding NowText}" Foreground="#F7F3EB" FontSize="18"
+                     FontFamily="Consolas, Menlo, monospace" />
+          <TextBlock Text="{Binding NextEventText}" TextWrapping="Wrap" Foreground="#B9C8BC"
+                     FontSize="12" LineHeight="18" />
+
+          <Border Background="#B4552D" CornerRadius="6" Padding="12,8"
+                  IsVisible="{Binding OverdueCount, Converter={StaticResource NotZeroToBoolConverter}}">
+            <TextBlock Text="{Binding OverdueCount, StringFormat='Просрочено выездов: {0}'}"
+                       Foreground="#FFFDF7" FontWeight="Bold" FontSize="13" />
+          </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Spacing="10">
+          <Button Click="SignOutButton_Click" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Background="#2E4A38" Foreground="#F7F3EB" BorderBrush="#3F5A49"
+                  Padding="14,11" FontWeight="SemiBold">
+            Сменить учётную запись
+          </Button>
+          <TextBlock Text="БД: catering_db @ localhost:3306" FontSize="10" Foreground="#6E8577" />
+          <TextBlock Text="Экспорт: SHA256 от [№]+[Дата]+[Контрагент]+[Сумма]+[Позиций]"
+                     FontSize="10" Foreground="#6E8577" TextWrapping="Wrap" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Рабочая область -->
+    <Grid Grid.Column="1" RowDefinitions="Auto,*,Auto,Auto" Margin="16">
+
+      <!-- Панель поиска и фильтров -->
+      <Grid Grid.Row="0" ColumnDefinitions="*,180,190,Auto,Auto" Margin="0,0,0,12">
+        <TextBox Grid.Column="0" Text="{Binding SearchText, Mode=TwoWay}"
+                 Watermark="Поиск: номер договора, клиент, тип мероприятия…"
+                 Padding="10,8" FontSize="13" />
+        <ComboBox Grid.Column="1" Margin="10,0,0,0"
+                  ItemsSource="{Binding StatusFilters}"
+                  SelectedItem="{Binding StatusFilter, Mode=TwoWay}"
+                  Padding="10,8" />
+        <ComboBox Grid.Column="2" Margin="10,0,0,0"
+                  ItemsSource="{Binding SortColumns}"
+                  SelectedItem="{Binding SortColumn, Mode=TwoWay}"
+                  Padding="10,8" />
+        <Button Grid.Column="3" Margin="10,0,0,0" Padding="12,8"
+                Command="{Binding ToggleSortDirectionCommand}"
+                ToolTip.Tip="Изменить направление сортировки (по столбцам)">
+          <TextBlock Text="⇅" FontSize="16" />
+        </Button>
+        <Button Grid.Column="4" Margin="10,0,0,0" Padding="12,8"
+                Command="{Binding ReloadCommand}" ToolTip.Tip="Обновить список">
+          <TextBlock Text="⟳" FontSize="16" />
+        </Button>
+      </Grid>
+
+      <!-- Таблица договоров -->
+      <Border Grid.Row="1" Classes="Card" Padding="10">
+        <DataGrid x:Name="ContractsGrid"
+                  ItemsSource="{Binding Contracts}"
+                  SelectedItem="{Binding SelectedContract, Mode=TwoWay}"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserResizeColumns="True"
+                  GridLinesVisibility="Horizontal"
+                  RowHeight="44"
+                  DoubleTapped="ContractsGrid_DoubleTapped">
+          <DataGrid.Columns>
+            <DataGridTextColumn Header="Номер документа" Binding="{Binding ContractNumber}" Width="165" />
+            <DataGridTextColumn Header="Клиент" Binding="{Binding CateringClient.ClientName}" Width="*" MinWidth="140" />
+            <DataGridTextColumn Header="Мероприятие" Binding="{Binding EventType.TypeTitle}" Width="150" />
+            <DataGridTextColumn Header="Выезд" Binding="{Binding EventDatetime, StringFormat='dd.MM.yyyy HH:mm'}" Width="140" />
+            <DataGridTextColumn Header="Гостей" Binding="{Binding GuestsCount}" Width="70" />
+            <DataGridTextColumn Header="Сумма, ₽" Binding="{Binding TotalBudget, StringFormat='{}{0:N2}'}" Width="120" />
+            <DataGridTemplateColumn Header="Статус" Width="185">
+              <DataTemplate>
+                <Border Classes="StatusChip"
+                        Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                        Margin="0,4">
+                  <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold"
+                             Foreground="{Binding Status, Converter={StaticResource StatusToForegroundConverter}}" />
+                </Border>
+              </DataTemplate>
+            </DataGridTemplateColumn>
+            <DataGridTemplateColumn Header="!" Width="100">
+              <DataTemplate>
+                <TextBlock FontSize="10" FontWeight="Bold" VerticalAlignment="Center">
+                  <TextBlock.Foreground>
+                    <MultiBinding Converter="{StaticResource OverdueBrushConverter}">
+                      <Binding Path="EventDatetime" />
+                      <Binding Path="Status" />
+                    </MultiBinding>
+                  </TextBlock.Foreground>
+                  <TextBlock.Text>
+                    <MultiBinding Converter="{StaticResource OverdueTextConverter}">
+                      <Binding Path="EventDatetime" />
+                      <Binding Path="Status" />
+                    </MultiBinding>
+                  </TextBlock.Text>
+                </TextBlock>
+              </DataTemplate>
+            </DataGridTemplateColumn>
+          </DataGrid.Columns>
+        </DataGrid>
+      </Border>
+
+      <!-- Нижняя панель действий -->
+      <Grid Grid.Row="2" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="0,12,0,0">
+        <Button Grid.Column="0" Classes="Accent" Click="NewButton_Click" Padding="16,11">
+          <TextBlock Text="＋  Новый договор" FontWeight="Bold" />
+        </Button>
+        <Button Grid.Column="1" Margin="8,0,0,0" Click="EditButton_Click"
+                IsEnabled="{Binding CanEdit}" Padding="16,11">
+          Редактировать…
+        </Button>
+        <Button Grid.Column="2" Margin="8,0,0,0" Click="DeleteButton_Click"
+                IsEnabled="{Binding CanDelete}" Padding="16,11">
+          Удалить
+        </Button>
+        <Button Grid.Column="3" Margin="8,0,0,0" Click="CancelButton_Click"
+                IsEnabled="{Binding CanCancel}" Padding="16,11">
+          Отменить договор…
+        </Button>
+        <Button Grid.Column="4" Margin="8,0,0,0" Padding="16,11"
+                Classes="Dark"
+                Command="{Binding AdvanceStatusCommand}"
+                IsEnabled="{Binding CanAdvance}"
+                Content="{Binding NextStatus, StringFormat='Перевести в «{0}» →'}" />
+
+        <Border Grid.Column="5" Background="Transparent" />
+
+        <TextBlock Grid.Column="6" VerticalAlignment="Center" Margin="0,0,10,0"
+                   FontSize="13" Foreground="#6B5E4E">
+          <Run Text="Выбрано позиций:" />
+          <Run Text="{Binding SelectedContract.MenuItems.Count, Mode=OneWay}" FontWeight="Bold" Foreground="#213B2C" />
+          <Run Text="· Итого:" />
+          <Run Text="{Binding SelectedContract.TotalBudget, Mode=OneWay, StringFormat='{}{0:N2} ₽'}"
+               FontWeight="Bold" Foreground="#B4552D" />
+        </TextBlock>
+
+        <Button Grid.Column="7" Classes="Dark" Click="ExportButton_Click"
+                IsEnabled="{Binding HasSelection}" Padding="16,11"
+                ToolTip.Tip="Экспорт сметы с SHA256-отпечатком (.txt / .csv / .html)">
+          Экспорт сметы ⤓
+        </Button>
+      </Grid>
+
+      <!-- Строка состояния -->
+      <Border Grid.Row="3" Margin="0,10,0,0" Padding="4,0">
+        <TextBlock Text="{Binding StatusMessage}" FontSize="11" Foreground="#6B5E4E" />
+      </Border>
+    </Grid>
+  </Grid>
+</Window>

@@ -1,0 +1,221 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Catering.Desktop.ViewModels"
+        x:Class="Catering.Desktop.Views.ContractEditorWindow"
+        Title="Договор кейтеринга · Master-Detail"
+        Width="1150" Height="760"
+        MinWidth="1000" MinHeight="640"
+        WindowStartupLocation="CenterOwner">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+
+    <!-- ═══ ШАПКА ДОКУМЕНТА (Master) ═══ -->
+    <Border Grid.Row="0" Classes="Card" Padding="18,16">
+      <StackPanel Spacing="12">
+        <Grid ColumnDefinitions="2.2*,2.4*,2.2*,2.2*">
+
+          <StackPanel Grid.Column="0" Spacing="3">
+            <TextBlock Classes="Caption" Text="ДОКУМЕНТ" />
+            <TextBlock Text="{Binding ContractNumber}" FontFamily="Georgia, 'Times New Roman', serif"
+                       FontSize="19" FontWeight="Bold" Foreground="#213B2C" />
+            <Border Classes="StatusChip" Margin="0,4,0,0"
+                    Background="{Binding Status, Converter={StaticResource StatusToBrushConverter}}">
+              <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold"
+                         Foreground="{Binding Status, Converter={StaticResource StatusToForegroundConverter}}" />
+            </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1" Spacing="3" Margin="12,0,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Classes="Caption" Text="КЛИЕНТ (КОНТРАГЕНТ)" />
+              <Button Grid.Column="1" Classes="Subtle" Padding="8,2" FontSize="11"
+                      Click="NewClientButton_Click" ToolTip.Tip="Быстро создать клиента">
+                <TextBlock Text="＋ клиент" />
+              </Button>
+            </Grid>
+            <ComboBox ItemsSource="{Binding Clients}"
+                      SelectedItem="{Binding SelectedClient, Mode=TwoWay}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding ClientName}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock Text="{Binding SelectedClient.Phone}" FontSize="11" Foreground="#6B5E4E" />
+            <TextBlock Text="{Binding VipBadge}" FontSize="11" FontWeight="SemiBold"
+                       Foreground="#B4552D"
+                       IsVisible="{Binding VipBadge, Converter={StaticResource StringNotEmptyConverter}}" />
+          </StackPanel>
+
+          <StackPanel Grid.Column="2" Spacing="3" Margin="12,0,0,0">
+            <TextBlock Classes="Caption" Text="ТИП МЕРОПРИЯТИЯ" />
+            <ComboBox ItemsSource="{Binding EventTypes}"
+                      SelectedItem="{Binding SelectedEventType, Mode=TwoWay}">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding TypeTitle}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBlock FontSize="11" Foreground="#6B5E4E">
+              <Run Text="Наценка площадки ×" />
+              <Run Text="{Binding SelectedEventType.ServiceMultiplier, Mode=OneWay, StringFormat='{}{0:0.00}'}" />
+              <Run Text=" · мин. гостей: " />
+              <Run Text="{Binding SelectedEventType.MinGuests, Mode=OneWay}" />
+            </TextBlock>
+          </StackPanel>
+
+          <StackPanel Grid.Column="3" Spacing="3" Margin="12,0,0,0">
+            <TextBlock Classes="Caption" Text="ВЫЕЗД · ГОСТЕЙ" />
+            <DatePicker SelectedDate="{Binding EventDate, Mode=TwoWay}"
+                        Height="36" />
+            <NumericUpDown Value="{Binding GuestsCount, Mode=TwoWay}"
+                           Minimum="1" Maximum="5000" Increment="5" FormatString="0"
+                           Height="36" />
+          </StackPanel>
+        </Grid>
+
+        <Border BorderBrush="#E0D5BE" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+          <TextBlock Classes="Error" Text="{Binding ValidationMessage}"
+                     IsVisible="{Binding ValidationMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+        </Border>
+      </StackPanel>
+    </Border>
+
+    <!-- ═══ СПЕЦИФИКАЦИЯ (Detail) + ИТОГИ ═══ -->
+    <Grid Grid.Row="1" ColumnDefinitions="4.2*,5.8*" Margin="0,14,0,0">
+
+      <!-- Левая колонка: добавление позиций и итоги -->
+      <Border Grid.Column="0" Classes="Card" Margin="0,0,14,0">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+          <TextBlock Grid.Row="0" Classes="H2" Text="Добавить позицию" />
+
+          <StackPanel Grid.Row="1" Spacing="6" Margin="0,10,0,0">
+            <ComboBox ItemsSource="{Binding Dishes}"
+                      SelectedItem="{Binding DishToAdd, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock>
+                    <Run Text="{Binding DishTitle, Mode=OneWay}" />
+                    <Run Text="{Binding CostPerPerson, Mode=OneWay, StringFormat=' · {0:0.00} ₽/персона'}"
+                         Foreground="#6B5E4E" />
+                  </TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Grid ColumnDefinitions="*,*">
+              <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                <TextBlock Classes="Caption" Text="ПОРЦИЙ" />
+                <NumericUpDown Value="{Binding AddServings, Mode=TwoWay}"
+                               Minimum="1" Maximum="100000" Increment="10" FormatString="0" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                <TextBlock Classes="Caption" Text="АРЕНДА ОБОРУДОВАНИЯ, ₽" />
+                <NumericUpDown Value="{Binding AddEquipmentFee, Mode=TwoWay}"
+                               Minimum="0" Maximum="1000000" Increment="500" FormatString="0.00" />
+              </StackPanel>
+            </Grid>
+            <Button Classes="Accent" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding AddLineCommand}"
+                    Content="Добавить в спецификацию" />
+          </StackPanel>
+
+          <Border Grid.Row="2" BorderBrush="#E0D5BE" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,12,0,0">
+            <StackPanel Spacing="5">
+              <TextBlock Classes="H2" Text="Итоги документа" />
+              <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,0">
+                <TextBlock Grid.Column="0" Text="Сумма блюд (строки)" Foreground="#4A3F33" />
+                <TextBlock Grid.Column="1" Text="{Binding AmountDishes, StringFormat='{}{0:N2} ₽'}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="VIP-скидка 10%" Foreground="#4A3F33" />
+                <TextBlock Grid.Column="1" Text="{Binding DiscountAmount, StringFormat='−{0:N2} ₽'}"
+                           Foreground="#B4552D" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Наценка площадки (сверх ×1.00)" Foreground="#4A3F33" />
+                <TextBlock Grid.Column="1" Text="{Binding MultiplierAmount, StringFormat='+{0:N2} ₽'}" FontWeight="SemiBold" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Обслуживание персоналом (500 × гостей)" Foreground="#4A3F33" />
+                <TextBlock Grid.Column="1" Text="{Binding StaffService, StringFormat='{}{0:N2} ₽'}" FontWeight="SemiBold" />
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Row="3" Background="#213B2C" CornerRadius="6" Padding="14,12" Margin="0,12,0,0">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Grid.Column="0" Text="ИТОГО" Foreground="#C9A227"
+                         FontSize="12" FontWeight="Bold" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="{Binding GrandTotal, StringFormat='{}{0:N2} ₽'}"
+                         Foreground="#F7F3EB" FontSize="22" FontWeight="Bold"
+                         FontFamily="Georgia, 'Times New Roman', serif" />
+            </Grid>
+          </Border>
+        </Grid>
+      </Border>
+
+      <!-- Правая колонка: DataGrid спецификации -->
+      <Border Grid.Column="1" Classes="Card" Padding="10">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" Margin="2,0,2,8">
+            <TextBlock Grid.Column="0" Classes="H2" Text="Спецификация" VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1" Text="{Binding ItemsCountText}"
+                       VerticalAlignment="Center" Margin="0,0,12,0"
+                       FontSize="12" Foreground="#6B5E4E" FontWeight="SemiBold" />
+            <Button Grid.Column="2" Classes="Subtle" Padding="10,5"
+                    Command="{Binding RemoveSelectedLineCommand}"
+                    IsEnabled="{Binding SelectedLine, Converter={StaticResource SelectedNotNullConverter}}"
+                    Content="Удалить позицию" />
+          </Grid>
+
+          <DataGrid Grid.Row="1"
+                    ItemsSource="{Binding Lines}"
+                    SelectedItem="{Binding SelectedLine, Mode=TwoWay}"
+                    AutoGenerateColumns="False"
+                    CanUserResizeColumns="True"
+                    GridLinesVisibility="Horizontal"
+                    RowHeight="42">
+            <DataGrid.Columns>
+              <DataGridTextColumn Header="Блюдо" Binding="{Binding DishTitle}" IsReadOnly="True" Width="*" MinWidth="150" />
+              <DataGridTextColumn Header="Категория" Binding="{Binding Category}" IsReadOnly="True" Width="125" />
+              <DataGridTextColumn Header="₽/персона" Binding="{Binding CostPerPerson, StringFormat='{}{0:N2}'}" IsReadOnly="True" Width="88" />
+              <DataGridTemplateColumn Header="Порций" Width="96">
+                <DataTemplate>
+                  <NumericUpDown Value="{Binding ServingsCount, Mode=TwoWay}"
+                                 Minimum="0" Maximum="100000" Increment="5" FormatString="0" />
+                </DataTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTemplateColumn Header="Аренда, ₽" Width="110">
+                <DataTemplate>
+                  <NumericUpDown Value="{Binding EquipmentRentFee, Mode=TwoWay}"
+                                 Minimum="0" Maximum="1000000" Increment="500" FormatString="0.00" />
+                </DataTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn Header="Сумма, ₽" Binding="{Binding LineCost, StringFormat='{}{0:N2}'}"
+                                  IsReadOnly="True" Width="110" />
+            </DataGrid.Columns>
+          </DataGrid>
+
+          <TextBlock Grid.Row="2" Text="Позиции не добавлены — смета будет сохранена как черновик (утверждение FSM недоступно)."
+                     IsVisible="{Binding ItemsCount, Converter={StaticResource IsZeroConverter}}"
+                     Margin="4,8,4,0" FontSize="11" FontStyle="Italic" Foreground="#8C6A2F" TextWrapping="Wrap" />
+        </Grid>
+      </Border>
+    </Grid>
+
+    <!-- ═══ ПОДВАЛ: сохранение ═══ -->
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" Margin="0,14,0,0">
+      <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="11" Foreground="#6B5E4E"
+                 Text="Сохранение транзакционное (BeginTransactionAsync): шапка + спецификация единым коммитом. Итоги пересчитываются на лету."
+                 TextWrapping="Wrap" />
+      <Button Grid.Column="1" Margin="0,0,10,0" Padding="18,12" Command="{Binding CancelCommand}"
+              Content="Отмена" />
+      <Button Grid.Column="2" Classes="Accent" Padding="22,12" FontSize="14"
+              Command="{Binding SaveCommand}"
+              Content="Сохранить договор" />
+    </Grid>
+  </Grid>
+</Window>

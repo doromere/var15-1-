@@ -1,0 +1,17 @@
+# .NET build output
+bin/
+obj/
+out/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# Rider / ReSharper
+.idea/
+_ReSharper*/
+
+# OS / misc
+.DS_Store
+Thumbs.db
+*.log

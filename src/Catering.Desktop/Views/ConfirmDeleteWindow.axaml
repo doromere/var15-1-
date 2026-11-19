@@ -1,0 +1,22 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Catering.Desktop.ViewModels"
+        x:Class="Catering.Desktop.Views.ConfirmDeleteWindow"
+        Title="Подтверждение удаления"
+        Width="460" Height="230"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+  <Border Classes="Card" Margin="16" Background="#FFF9F0">
+    <StackPanel Spacing="14">
+      <TextBlock Classes="H2" Text="Удалить запись?" Foreground="#8C2F2F" />
+      <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="13"
+                 Foreground="#4A3F33" LineHeight="19" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+        <Button Padding="16,10" Command="{Binding CancelCommand}" Content="Отмена" />
+        <Button Classes="Accent" Padding="16,10" Command="{Binding ConfirmCommand}"
+                Content="Удалить безвозвратно" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

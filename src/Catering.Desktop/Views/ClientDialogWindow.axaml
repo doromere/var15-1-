@@ -1,0 +1,49 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Catering.Desktop.ViewModels"
+        x:Class="Catering.Desktop.Views.ClientDialogWindow"
+        Title="Новый клиент"
+        Width="520" Height="430"
+        WindowStartupLocation="CenterOwner"
+        CanResize="False">
+
+  <Border Classes="Card" Margin="16">
+    <StackPanel Spacing="10">
+      <TextBlock Classes="H2" Text="Новый клиент кейтеринга" />
+
+      <StackPanel Spacing="4">
+        <TextBlock Classes="Caption" Text="НАИМЕНОВАНИЕ" />
+        <TextBox Text="{Binding ClientName, Mode=TwoWay}"
+                 Watermark="ООО «Ромашка» / ИП Петров / Мария Лебедева" MaxLength="255" />
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <TextBlock Classes="Caption" Text="ТЕЛЕФОН" />
+        <TextBox Text="{Binding Phone, Mode=TwoWay}"
+                 Watermark="+7 (384) 221-30-40" MaxLength="32" />
+        <TextBlock Text="{Binding PhoneHint}" FontSize="10" Foreground="#6B5E4E" />
+      </StackPanel>
+
+      <StackPanel Spacing="4">
+        <TextBlock Classes="Caption" Text="ПЛОЩАДКА / АДРЕС МЕРОПРИЯТИЯ" />
+        <TextBox Text="{Binding EventLocation, Mode=TwoWay}"
+                 Watermark="например: ресторан «Сибирь», банкетный зал № 2"
+                 MaxLength="500" TextWrapping="Wrap" Height="64" AcceptsReturn="True" />
+      </StackPanel>
+
+      <CheckBox Content="VIP-клиент (скидка 10% на сумму блюд)"
+                IsChecked="{Binding IsVip, Mode=TwoWay}"
+                FontWeight="SemiBold" Foreground="#B4552D" />
+
+      <TextBlock Classes="Error" Text="{Binding ErrorMessage}"
+                 IsVisible="{Binding ErrorMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+        <Button Padding="16,10" Command="{Binding CancelCommand}" Content="Отмена" />
+        <Button Classes="Accent" Padding="16,10" Command="{Binding SaveCommand}"
+                IsEnabled="{Binding CanSave}"
+                Content="Сохранить клиента" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

@@ -42,13 +42,43 @@ Catering.sln
 3. (Либо консолью: `mysql -u root < db/schema.sql`)
 
 ### Шаг 2. Строка подключения
-По умолчанию (`src/Catering.Desktop/Services/ConnectionOptions.cs`, XAMPP: root без пароля):
+По умолчанию (`src/Catering.Desktop/Services/ConnectionOptions.cs`) рассчитан XAMPP/OpenServer-сценарий
+(`root` без пароля). Если ваш MySQL/MariaDB требует пароль (например, на «чистом» MySQL root всегда с паролем),
+вход завершится сообщением `Access denied for user 'root'@'localhost'`. Есть три рабочих способа:
 
+**Вариант А — переменная окружения** (рекомендуется, без правки кода).
+Windows (PowerShell), действует для текущего терминала:
+```powershell
+$env:CATERING_CONNECTION_STRING="Server=localhost;Port=3306;Database=catering_db;User Id=root;Password=ВАШ_ПАРОЛЬ;CharSet=utf8mb4;"
+dotnet run --project src/Catering.Desktop
 ```
-Server=localhost;Port=3306;Database=catering_db;User Id=root;Password=;CharSet=utf8mb4;
+Постоянно (после — открыть новый терминал):
+```powershell
+setx CATERING_CONNECTION_STRING "Server=localhost;Port=3306;Database=catering_db;User Id=root;Password=ВАШ_ПАРОЛЬ;CharSet=utf8mb4;"
 ```
 
-Переопределение без перекомпиляции — переменная окружения `CATERING_CONNECTION_STRING`.
+**Вариант Б — отдельный пользователь БД** (чище: права только на `catering_db`).
+В phpMyAdmin → вкладка **SQL** выполните (подставьте свой пароль):
+```sql
+CREATE USER 'catering'@'localhost' IDENTIFIED BY 'catering123';
+GRANT ALL PRIVILEGES ON catering_db.* TO 'catering'@'localhost';
+FLUSH PRIVILEGES;
+```
+и запускайте приложение с:
+```powershell
+$env:CATERING_CONNECTION_STRING="Server=localhost;Port=3306;Database=catering_db;User Id=catering;Password=catering123;CharSet=utf8mb4;"
+dotnet run --project src/Catering.Desktop
+```
+
+**Вариант В — правка кода.** Впишите свои реквизиты в `DefaultConnectionString` в
+`src/Catering.Desktop/Services/ConnectionOptions.cs` (не коммитьте файл с реальным паролем в git —
+используйте `git update-index --skip-worktree src/Catering.Desktop/Services/ConnectionOptions.cs`).
+
+Важно: на MariaDB `root` с `unix_socket`-аутентификацией по TCP из Windows не подойдёт — создайте
+обычного пользователя (вариант Б) либо задайте root'у `mysql_native_password`.
+
+Приложение **не падает** при недоступной/неверно настроенной БД: ошибка авторизации выводится
+сообщением в окне входа, а сбой открытия документа — строкой состояния в главном окне.
 
 ### Шаг 3. Запуск
 ```bash

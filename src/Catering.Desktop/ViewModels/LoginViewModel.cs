@@ -76,7 +76,18 @@ public partial class LoginViewModel : ViewModelBase
             return;
         }
 
-        User? user = _auth.Authenticate(Login, Password);
+        User? user;
+        try
+        {
+            user = _auth.Authenticate(Login, Password);
+        }
+        catch (Exception ex)
+        {
+            // Ошибка БД не должна ронять приложение — показываем понятное сообщение.
+            ErrorMessage = "Нет соединения с базой данных (проверьте строку подключения и что catering_db импортирована). Детали: "
+                           + ex.Message;
+            return;
+        }
         if (user is null)
         {
             FailedAttempts++;

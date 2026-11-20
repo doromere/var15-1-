@@ -59,7 +59,7 @@ public partial class App : Application
 
         if (ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime)
         {
-            lifetime.ShutdownMode = Avalonia.Controls.ApplicationLifetimes.ShutdownMode.OnLastWindowClose;
+            // Режим завершения по умолчанию — OnLastWindowClose (закрывать приложение при закрытии последнего окна).
             lifetime.MainWindow = Services.GetRequiredService<LoginWindow>();
             lifetime.MainWindow.Show();
         }
@@ -67,10 +67,15 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    /// <summary>Lifetime рабочего стола (через Application.Current; метод статический).</summary>
+    private static Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime? GetLifetime() =>
+        Application.Current?.ApplicationLifetime
+            as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime;
+
     /// <summary>Переключение на главное окно после успешной аутентификации.</summary>
     public static void ShowMainWindow(Window current)
     {
-        if (ApplicationLifetime is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime)
+        if (GetLifetime() is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime)
             return;
         var main = Services.GetRequiredService<MainWindow>();
         lifetime.MainWindow = main;
@@ -81,7 +86,7 @@ public partial class App : Application
     /// <summary>Возврат к окну авторизации («Сменить учетную запись»).</summary>
     public static void ShowLoginWindow(Window current)
     {
-        if (ApplicationLifetime is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime)
+        if (GetLifetime() is not Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime)
             return;
         var login = Services.GetRequiredService<LoginWindow>();
         lifetime.MainWindow = login;

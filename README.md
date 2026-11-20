@@ -131,8 +131,9 @@ dotnet test
 ## Замечания по сборке
 
 Решение написано под **.NET 10 SDK** (`net10.0`, C# 14) и пакеты: `Avalonia 11.3.0`,
-`CommunityToolkit.Mvvm 8.4.0`, `Microsoft.EntityFrameworkCore 10.0.0`,
-`Pomelo.EntityFrameworkCore.MySql 10.0.0`, `xunit 2.9.2` (корректный набор для рантайма .NET 10.0.12).
+`CommunityToolkit.Mvvm 8.4.0`, `Microsoft.EntityFrameworkCore 9.0.0`,
+`Pomelo.EntityFrameworkCore.MySql 9.0.0`, `xunit 2.9.2` (EF Core 9 собран под net8.0 и полностью
+совместим с net10.0; Pomelo для EF Core 10 на NuGet на момент сборки отсутствовал — ближайший 9.0.0).
 В корне лежит `global.json` (`10.0.100`, rollForward `latestFeature`) — подхватится SDK 10.0.112.
 Сборка локально в среде подготовки не выполнялась (официальные каналы .NET/NuGet оттуда недоступны);
 код проверялся статическим анализом (синтаксис, баланс скобок, XML/XAML, ссылки на ресурсы и биндинги).
@@ -143,8 +144,8 @@ dotnet test
 dotnet restore && dotnet build && dotnet test
 ```
 
-Если `restore` сообщит, что какой-то патч не найден на вашем NuGet-канале
-(например, `Pomelo.EntityFrameworkCore.MySql 10.0.0`), выполните `dotnet add <проекта> package <имя>`
-без `--version` — будет выбрана максимальная доступная версия. Пара EF Core ↔ Pomelo должна совпадать
-по мажорной версии (EFC10 ↔ Pomelo 10, EFC9 ↔ Pomelo 9). Шаг `dotnet add package` сам поднимет
-остальные зависимости. .NET 8 рантайм для запуска **не требуется** — всё перецелено на net10.0.
+Если `restore` сообщит, что какой-то патч не найден на вашем NuGet-канале, выполните
+`dotnet add <проекта> package <имя>` без `--version` — будет выбрана максимальная доступная версия.
+Пара EF Core ↔ Pomelo обязана совпадать по мажорной версии (EFC9 ↔ Pomelo 9, EFC10 ↔ Pomelo 10, когда выйдет).
+Шаг `dotnet add package` сам поднимет остальные зависимости. .NET 8 рантайм для запуска **не требуется** —
+всё перецелено на net10.0.

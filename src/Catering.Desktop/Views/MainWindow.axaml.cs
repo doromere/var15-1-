@@ -40,14 +40,21 @@ public partial class MainWindow : Window
 
     private async Task OpenEditorAsync(int? contractId)
     {
-        ContractEditorViewModel editorVm = App.Services.GetRequiredService<ContractEditorViewModel>();
-        await editorVm.InitializeAsync(contractId);
+        try
+        {
+            ContractEditorViewModel editorVm = App.Services.GetRequiredService<ContractEditorViewModel>();
+            await editorVm.InitializeAsync(contractId);
 
-        ContractEditorWindow editor = new(editorVm);
-        await editor.ShowDialog(this);
+            ContractEditorWindow editor = new(editorVm);
+            await editor.ShowDialog(this);
 
-        if (editorVm.Saved)
-            await _viewModel.LoadAsyncSafe();
+            if (editorVm.Saved)
+                await _viewModel.LoadAsyncSafe();
+        }
+        catch (Exception ex)
+        {
+            _viewModel.StatusMessage = "Не удалось открыть документ: " + ex.Message;
+        }
     }
 
     private async void DeleteButton_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
